@@ -1,4 +1,3 @@
-
 describe('Keen IO', function () {
 
   describe('initialize', function () {

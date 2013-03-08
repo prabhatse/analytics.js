@@ -1,4 +1,3 @@
-
 describe('HubSpot', function () {
 
   describe('initialize', function () {

@@ -1,4 +1,3 @@
-
 describe('Woopra', function () {
 
   describe('initialize', function () {

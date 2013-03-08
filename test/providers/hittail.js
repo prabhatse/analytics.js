@@ -1,4 +1,3 @@
-
 describe('HitTail', function () {
 
   describe('initialize', function () {

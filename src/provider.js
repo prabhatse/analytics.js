@@ -6,6 +6,14 @@ var each   = require('each')
 module.exports = Provider;
 
 
+/**
+ * Provider.
+ *
+ * @param {Object} options - Settings for the current instance of the provider.
+ * @param {Function} ready - A callback to call when the provider is ready to
+ *                           accept analytics method calls.
+ */
+
 function Provider (options, ready) {
   var self = this;
   // Set up a queue of { method : 'identify', args : [] } to call
@@ -44,8 +52,15 @@ function Provider (options, ready) {
 }
 
 
-// Helper to add provider methods to the prototype chain, for adding custom
-// providers. Modeled after [Backbone's `extend` method](https://github.com/documentcloud/backbone/blob/master/backbone.js#L1464).
+/**
+ * Helper to add provider methods to the prototype chain, for adding custom
+ * providers.
+ *
+ * Modeled after [Backbone's `extend` method](https://github.com/documentcloud/backbone/blob/master/backbone.js#L1464).
+ *
+ * @param {Object} properties - Properties to add to the provider's prototype.
+ */
+
 Provider.extend = function (properties) {
   var parent = this;
   var child = function () { return parent.apply(this, arguments); };
@@ -57,33 +72,53 @@ Provider.extend = function (properties) {
 };
 
 
-// Add to the default Provider prototype.
+/**
+ * Extend Provider's prototype with some defaults.
+ */
+
 extend(Provider.prototype, {
 
-  // Override this with any default options.
+  /**
+   * The default options for the provider. This will get `extend`ed on
+   * initialize with the current options.
+   */
+
   options : {},
 
-  // Override this if our provider only needs a single API key to
-  // initialize itself, in which case we can use the terse initialization
-  // syntax:
-  //
-  //     analytics.initialize({
-  //       'Provider' : 'XXXXXXX'
-  //     });
-  //
+
+  /**
+   * The keyname of the `options` key that is the required key for the provider.
+   * This lets us maintain a simple API for the option-less case:
+   *
+   *     analytics.initialize({
+   *       'Provider' : 'REQUIRED_KEYS_VALUE_HERE'
+   *     });
+   */
+
   key : undefined,
 
-  // Override to provider your own initialization logic, usually a snippet
-  // and loading a Javascript library.
+
+  /**
+   * Initialize the provider, loading any scripts and applying options.
+   *
+   * @param {Object} options - A dictionary of settings for the provider.
+   * @param {Function} ready - A callback to call when the provider is ready to
+   *                           accept analytics method calls.
+   */
+
   initialize : function (options, ready) {
     ready();
   },
 
+
   /**
-   * Adds an item to the queue
-   * @param  {String} method ('track' or 'identify')
-   * @param  {Object} args
+   * Adds an item to the provider's internal queue, which will then get replayed
+   * when the provider is finally ready.
+   *
+   * @param {String} method - The analytics method (eg. `track` or `identify`).
+   * @param {Object} args - The arguments to call the method with.
    */
+
   enqueue : function (method, args) {
     this.queue.push({
       method : method,

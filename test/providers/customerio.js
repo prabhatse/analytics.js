@@ -1,4 +1,3 @@
-
 describe('Customer.io', function () {
 
   describe('initialize', function () {

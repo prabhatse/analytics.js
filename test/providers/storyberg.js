@@ -1,25 +1,31 @@
-
 describe('Storyberg', function () {
 
   var clone = require('component-clone');
 
   describe('initialize', function () {
 
+    this.timeout(10000);
+
     it('should call ready and load library', function (done) {
+      var spy  = sinon.spy()
+        , push = Array.prototype.push;
+
       expect(window._sbq).to.be(undefined);
 
-      var spy = sinon.spy();
       analytics.ready(spy);
       analytics.initialize({ 'Storyberg' : test['Storyberg'] });
+
       expect(window._sbq).not.to.be(undefined);
       expect(window._sbq.push).to.equal(Array.prototype.push);
       expect(spy.called).to.be(true);
 
-      // When the library loads, it will overwrite the push method.
-      setTimeout(function () {
-        expect(window._sbq.push).not.to.equal(Array.prototype.push);
+      // When the library loads, push will be overriden.
+      var interval = setInterval(function () {
+        if (window._sbq.push === push) return;
+        expect(window._sbq.push).not.to.eql(push);
+        clearInterval(interval);
         done();
-      }, 1900);
+      }, 20);
     });
 
     it('should store options', function () {

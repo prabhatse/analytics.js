@@ -1,4 +1,3 @@
-
 describe('KISSmetrics', function () {
 
   describe('initialize', function () {

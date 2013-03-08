@@ -207,6 +207,33 @@ require.relative = function(parent) {
 
   return localRequire;
 };
+require.register("component-bind/index.js", function(exports, require, module){
+
+/**
+ * Slice reference.
+ */
+
+var slice = [].slice;
+
+/**
+ * Bind `obj` to `fn`.
+ *
+ * @param {Object} obj
+ * @param {Function|String} fn or string
+ * @return {Function}
+ * @api public
+ */
+
+module.exports = function(obj, fn){
+  if ('string' == typeof fn) fn = obj[fn];
+  if ('function' != typeof fn) throw new Error('bind() requires a function');
+  var args = [].slice.call(arguments, 2);
+  return function(){
+    return fn.apply(obj, args.concat(slice.call(arguments)));
+  }
+};
+
+});
 require.register("component-clone/index.js", function(exports, require, module){
 
 /**
@@ -1908,6 +1935,14 @@ var each   = require('each')
 module.exports = Provider;
 
 
+/**
+ * Provider.
+ *
+ * @param {Object} options - Settings for the current instance of the provider.
+ * @param {Function} ready - A callback to call when the provider is ready to
+ *                           accept analytics method calls.
+ */
+
 function Provider (options, ready) {
   var self = this;
   // Set up a queue of { method : 'identify', args : [] } to call
@@ -1946,8 +1981,15 @@ function Provider (options, ready) {
 }
 
 
-// Helper to add provider methods to the prototype chain, for adding custom
-// providers. Modeled after [Backbone's `extend` method](https://github.com/documentcloud/backbone/blob/master/backbone.js#L1464).
+/**
+ * Helper to add provider methods to the prototype chain, for adding custom
+ * providers.
+ *
+ * Modeled after [Backbone's `extend` method](https://github.com/documentcloud/backbone/blob/master/backbone.js#L1464).
+ *
+ * @param {Object} properties - Properties to add to the provider's prototype.
+ */
+
 Provider.extend = function (properties) {
   var parent = this;
   var child = function () { return parent.apply(this, arguments); };
@@ -1959,33 +2001,53 @@ Provider.extend = function (properties) {
 };
 
 
-// Add to the default Provider prototype.
+/**
+ * Extend Provider's prototype with some defaults.
+ */
+
 extend(Provider.prototype, {
 
-  // Override this with any default options.
+  /**
+   * The default options for the provider. This will get `extend`ed on
+   * initialize with the current options.
+   */
+
   options : {},
 
-  // Override this if our provider only needs a single API key to
-  // initialize itself, in which case we can use the terse initialization
-  // syntax:
-  //
-  //     analytics.initialize({
-  //       'Provider' : 'XXXXXXX'
-  //     });
-  //
+
+  /**
+   * The keyname of the `options` key that is the required key for the provider.
+   * This lets us maintain a simple API for the option-less case:
+   *
+   *     analytics.initialize({
+   *       'Provider' : 'REQUIRED_KEYS_VALUE_HERE'
+   *     });
+   */
+
   key : undefined,
 
-  // Override to provider your own initialization logic, usually a snippet
-  // and loading a Javascript library.
+
+  /**
+   * Initialize the provider, loading any scripts and applying options.
+   *
+   * @param {Object} options - A dictionary of settings for the provider.
+   * @param {Function} ready - A callback to call when the provider is ready to
+   *                           accept analytics method calls.
+   */
+
   initialize : function (options, ready) {
     ready();
   },
 
+
   /**
-   * Adds an item to the queue
-   * @param  {String} method ('track' or 'identify')
-   * @param  {Object} args
+   * Adds an item to the provider's internal queue, which will then get replayed
+   * when the provider is finally ready.
+   *
+   * @param {String} method - The analytics method (eg. `track` or `identify`).
+   * @param {Object} args - The arguments to call the method with.
    */
+
   enqueue : function (method, args) {
     this.queue.push({
       method : method,
@@ -3149,6 +3211,7 @@ exports['Klaviyo']          = require('./klaviyo');
 exports['LiveChat']         = require('./livechat');
 exports['Mixpanel']         = require('./mixpanel');
 exports['Olark']            = require('./olark');
+exports['Optimizely']       = require('./optimizely');
 exports['Perfect Audience'] = require('./perfect-audience');
 exports['Qualaroo']         = require('./qualaroo');
 exports['Quantcast']        = require('./quantcast');
@@ -3686,6 +3749,81 @@ module.exports = Provider.extend({
 
 });
 });
+require.register("analytics/src/providers/optimizely.js", function(exports, require, module){
+// Optimizely
+// ----------
+// [Docs](https://www.optimizely.com/docs/api#overview)
+
+var Provider = require('../provider')
+  , each     = require('each')
+  , bind     = require('bind');
+
+
+module.exports = Provider.extend({
+
+  options : {
+    // Whether to grab the experiments the visitor has been assigned to on
+    // Optimizely and send that data as traits to all the other providers. This
+    // makes segmenting by A/B test in your other analytics services possible.
+    scrape : false,
+
+    // Whether to send track calls to Optimizely.
+    track : true
+  },
+
+
+  initialize : function (options, ready) {
+    // Make sure `optimizely` is defined.
+    window.optimizely || (window.optimizely = []);
+
+    // We expect the user to have added their Optimizely snippet by hand, at the
+    // top of the page, so we're ready immediately.
+    ready();
+
+    // If the scrape option is enabled, once all of the providers are ready to
+    // receive `identify` calls, scrape our Optimizely data.
+    //
+    // TODO: this doesn't work yet.
+    if (options.scrape) window.analytics.ready(bind(this, this.scrape));
+  },
+
+
+  track : function (event, properties) {
+    if (!this.options.track) return;
+
+    // Optimizely tracks `revenue` in cents, instead of as a float.
+    // https://www.optimizely.com/docs/api#track-event
+    if (properties && properties.revenue) {
+      properties.revenue = 100 * properties.revenue;
+    }
+
+    window.optimizely.push(['trackEvent', event, properties]);
+  },
+
+
+  // Run through the current Optimizely state variables and scrape out the data
+  // about which experiments the user is currently viewing. Then send an
+  // `identify` call with a trait for each experiment. This lets you segment by
+  // experiment in your other analytics providers.
+  scrape : function () {
+    var traits = {};
+
+    // For every experiment the user is currently seeing, add a trait with key
+    // of the experiment name and value of the variation name.
+    var data = window.optimizely.data
+      , map  = data.state.variationNamesMap;
+
+    each(map, function (id, variation) {
+      var experiment = data.experiments[id].name;
+      traits[experiment] = variation;
+    });
+
+    // Send out the global `identify` call.
+    window.analytics.identify(traits);
+  }
+
+});
+});
 require.register("analytics/src/providers/perfect-audience.js", function(exports, require, module){
 // Perfect Audience
 // ----------------
@@ -4132,6 +4270,8 @@ module.exports = Provider.extend({
 
 });
 });
+require.alias("component-bind/index.js", "analytics/deps/bind/index.js");
+
 require.alias("component-clone/index.js", "analytics/deps/clone/index.js");
 require.alias("component-type/index.js", "component-clone/deps/type/index.js");
 

@@ -1,4 +1,3 @@
-
 describe('Quantcast', function () {
 
   describe('initialize', function () {

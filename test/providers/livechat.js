@@ -1,4 +1,3 @@
-
 describe('LiveChat', function () {
 
   describe('initialize', function () {

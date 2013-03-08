@@ -1,4 +1,3 @@
-
 describe('USERcycle', function () {
 
   describe('initialize', function () {

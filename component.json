@@ -32,6 +32,7 @@
     "live chat",
     "mixpanel",
     "olark",
+    "optimizely",
     "perfect audience",
     "qualaroo",
     "quantcast",
@@ -44,6 +45,7 @@
     "woopra"
   ],
   "dependencies": {
+    "component/bind": "*",
     "component/clone": "*",
     "component/cookie": "*",
     "component/each": "*",
@@ -92,6 +94,7 @@
     "src/providers/livechat.js",
     "src/providers/mixpanel.js",
     "src/providers/olark.js",
+    "src/providers/optimizely.js",
     "src/providers/perfect-audience.js",
     "src/providers/qualaroo.js",
     "src/providers/quantcast.js",

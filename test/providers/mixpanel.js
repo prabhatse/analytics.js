@@ -1,4 +1,3 @@
-
 describe('Mixpanel', function () {
 
   // Mixpanel needs specially aliased traits.

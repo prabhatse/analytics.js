@@ -1,4 +1,3 @@
-
 describe('FoxMetrics', function () {
 
   describe('initialize', function () {

@@ -1,4 +1,3 @@
-
 describe('Vero', function () {
 
   describe('initialize', function () {

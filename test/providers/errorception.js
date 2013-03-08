@@ -1,4 +1,3 @@
-
 describe('Errorception', function () {
 
   describe('initialize', function () {

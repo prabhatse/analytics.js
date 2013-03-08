@@ -21,6 +21,7 @@ exports['Klaviyo']          = require('./klaviyo');
 exports['LiveChat']         = require('./livechat');
 exports['Mixpanel']         = require('./mixpanel');
 exports['Olark']            = require('./olark');
+exports['Optimizely']       = require('./optimizely');
 exports['Perfect Audience'] = require('./perfect-audience');
 exports['Qualaroo']         = require('./qualaroo');
 exports['Quantcast']        = require('./quantcast');

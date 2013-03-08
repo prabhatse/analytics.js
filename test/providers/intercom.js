@@ -1,4 +1,3 @@
-
 describe('Intercom', function () {
 
   var options = {

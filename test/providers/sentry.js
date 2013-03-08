@@ -1,4 +1,3 @@
-
 describe('Sentry', function () {
 
   describe('initialize', function () {

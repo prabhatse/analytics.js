@@ -93,6 +93,8 @@ window.test = {
 
   'Olark' : '5798-949-10-1692',
 
+  'Optimizely' : {},
+
   'Perfect Audience' : '4ff6ade4361ed500020000a5',
 
   'Quantcast' : 'x',

@@ -1,4 +1,3 @@
-
 describe('SnapEngage', function () {
 
   describe('initialize', function () {
