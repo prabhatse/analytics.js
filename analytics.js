@@ -1488,6 +1488,10 @@ extend(Analytics.prototype, {
   // analytics have been initialized.
   readyCallbacks : [],
 
+  // A queue for storing { method : 'identify', args : [] } to call once we
+  // are initialized (identical to queue for Provider).
+  callQueue : [],
+
   // The amount of milliseconds to wait for requests to providers to clear
   // before navigating away from the current page.
   timeout : 300,
@@ -1499,6 +1503,34 @@ extend(Analytics.prototype, {
   providers : [],
 
   Provider : Provider,
+
+  // enqueueCall
+  // -----------
+  // Adds an item to the callQueue, which will be called after analytics
+  // has initialized.
+  //
+  // * `method` can be one of ('track', 'identify', 'pageview', 'alias')
+  // * `args` is an array of arguments to the call to `method`
+  // * `pushToFront` whether to push call to the front of callQueue.
+  enqueueCall : function (method, args, pushToFront) {
+    if (!this.initialized) {
+      if (!pushToFront) {
+        this.callQueue.push({
+          method : method,
+          args : args
+        });
+      }
+      else {
+        this.callQueue.unshift({
+          method : method,
+          args : args
+        });
+      }
+    }
+    else {
+      this[method].apply(this, args);
+    }
+  },
 
   // Adds a provider to the list of available providers that can be
   // initialized.
@@ -1566,6 +1598,14 @@ extend(Analytics.prototype, {
 
     // Update the initialized state that other methods rely on.
     this.initialized = true;
+
+    // Now that we're initialized, flush all items in queue.
+    each(self.callQueue, function (call) {
+      var method = call.method
+        , args   = call.args;
+      self[method].apply(self, args);
+    });
+    self.callQueue = [];
   },
 
 
@@ -1614,7 +1654,10 @@ extend(Analytics.prototype, {
   // * `callback` (optional) is a function to call after the a small
   // timeout to give the identify requests a chance to be sent.
   identify : function (userId, traits, context, callback) {
-    if (!this.initialized) return;
+    if (!this.initialized) {
+      this.enqueueCall('identify', [userId, clone(traits), clone(context)]);
+      return;
+    }
 
     // Allow for not passing context, but passing a callback.
     if (type(context) === 'function') {
@@ -1697,7 +1740,10 @@ extend(Analytics.prototype, {
   // * `callback` (optional) is a function to call after the a small
   // timeout to give the track requests a chance to be sent.
   track : function (event, properties, context, callback) {
-    if (!this.initialized) return;
+    if (!this.initialized) {
+      this.enqueueCall('track', [event, clone(properties), clone(context)]);
+      return;
+    }
 
     // Allow for not passing context, but passing a callback.
     if (type(context) === 'function') {
@@ -1853,7 +1899,10 @@ extend(Analytics.prototype, {
   // with the page. You only need to pass this argument if the URL hasn't
   // changed but you want to register a new pageview.
   pageview : function (url) {
-    if (!this.initialized) return;
+    if (!this.initialized) {
+      this.enqueueCall('pageview', [url]);
+      return;
+    }
 
     // Call `pageview` on all of our enabled providers that support it.
     each(this.providers, function (provider) {
@@ -1880,7 +1929,10 @@ extend(Analytics.prototype, {
   // recognized by. This defaults to the currently identified user's ID if
   // there is one. In most cases you don't need to pass this argument.
   alias : function (newId, originalId) {
-    if (!this.initialized) return;
+    if (!this.initialized) {
+      this.enqueueCall('alias', [newId, originalId]);
+      return;
+    }
 
     // Call `alias` on all of our enabled providers that support it.
     each(this.providers, function (provider) {
