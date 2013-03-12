@@ -75,16 +75,32 @@ extend(Analytics.prototype, {
 
   Provider : Provider,
 
-  /**
-   * Adds an item to the queue
-   * @param  {String} method ('track' or 'identify')
-   * @param  {Object} args
-   */
-  enqueueCall : function (method, args) {
-    this.callQueue.push({
-      method : method,
-      args : args
-    });
+  // enqueueCall
+  // -----------
+  // Adds an item to the callQueue, which will be called after analytics
+  // has initialized.
+  //
+  // * `method` can be one of ('track', 'identify', 'pageview', 'alias')
+  // * `args` is an array of arguments to the call to `method`
+  //
+  enqueueCall : function (method, args, pushToFront) {
+    if (!this.initialized) {
+      if (!pushToFront) {
+        this.callQueue.push({
+          method : method,
+          args : args
+        });
+      }
+      else {
+        this.callQueue.unshift({
+          method : method,
+          args : args
+        });
+      }
+    }
+    else {
+      this[method].apply(this, args);
+    }
   },
 
   // Adds a provider to the list of available providers that can be
