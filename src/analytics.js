@@ -82,7 +82,7 @@ extend(Analytics.prototype, {
   //
   // * `method` can be one of ('track', 'identify', 'pageview', 'alias')
   // * `args` is an array of arguments to the call to `method`
-  //
+  // * `pushToFront` whether to push call to the front of callQueue.
   enqueueCall : function (method, args, pushToFront) {
     if (!this.initialized) {
       if (!pushToFront) {
