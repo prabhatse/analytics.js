@@ -1,5 +1,5 @@
-
 describe('Sentry', function () {
+
 
   describe('initialize', function () {
 
@@ -42,7 +42,8 @@ describe('Sentry', function () {
   describe('identify', function () {
 
     it('should call `setUser`', function (done) {
-      var spy    = sinon.spy(window.Raven, 'setUser')
+      var extend = require('segmentio-extend')
+        , spy    = sinon.spy(window.Raven, 'setUser')
         , traits = extend({}, test.traits, { id : test.userId});
 
       analytics.identify(test.userId, test.traits);
@@ -51,6 +52,25 @@ describe('Sentry', function () {
         expect(spy.calledWithMatch(traits)).to.be(true);
         done();
       });
+    });
+
+  });
+
+
+  describe('log', function () {
+
+    it('should call captureException with an exception', function () {
+      var spy = sinon.spy(window.Raven, 'captureException');
+      analytics.log(test.logError, test.logProperties);
+      expect(spy.calledWith(test.logError, test.logProperties)).to.be(true);
+      spy.restore();
+    });
+
+    it('should call captureMessage with a string', function () {
+      var spy = sinon.spy(window.Raven, 'captureMessage');
+      analytics.log(test.logMessage, test.logProperties);
+      expect(spy.calledWith(test.logMessage, test.logProperties)).to.be(true);
+      spy.restore();
     });
 
   });

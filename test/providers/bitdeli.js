@@ -1,5 +1,5 @@
-
 describe('Bitdeli', function () {
+
 
   describe('initialize', function () {
 
@@ -49,8 +49,11 @@ describe('Bitdeli', function () {
     it('should be able to not track a pageview', function () {
       // Create the queue before hand, so we can spy it.
       window._bdq = [];
-      var spy = sinon.spy(window._bdq, 'push');
-      var options = clone(test['Bitdeli']);
+
+      var clone   = require('component-clone')
+        , spy     = sinon.spy(window._bdq, 'push')
+        , options = clone(test['Bitdeli']);
+
       options.initialPageview = false;
 
       analytics.initialize({ 'Bitdeli' : options });
@@ -64,9 +67,9 @@ describe('Bitdeli', function () {
 
   describe('identify', function () {
 
-    before(analytics.user.clear);
+    beforeEach(analytics.user.clear);
 
-    it('should push "identify" on identify', function () {
+    it('should push "identify"', function () {
       var spy = sinon.spy(window._bdq, 'push');
       analytics.identify(test.traits);
       expect(spy.calledWith(['identify', test.userId])).to.be(false);
@@ -82,7 +85,7 @@ describe('Bitdeli', function () {
       spy.restore();
     });
 
-    it('should push "set" on identify', function () {
+    it('should push "set"', function () {
       var spy = sinon.spy(window._bdq, 'push');
       analytics.identify(test.traits);
       expect(spy.calledWith(['set', test.traits])).to.be(true);
@@ -103,7 +106,7 @@ describe('Bitdeli', function () {
 
   describe('track', function () {
 
-    it('should push "track" on track', function () {
+    it('should push "track"', function () {
       var spy = sinon.spy(window._bdq, 'push');
       analytics.track(test.event, test.properties);
       expect(spy.calledWith(['track', test.event, test.properties])).to.be(true);
@@ -116,7 +119,7 @@ describe('Bitdeli', function () {
 
   describe('pageview', function () {
 
-    it('should push "trackPageview" on pageview', function () {
+    it('should push "trackPageview"', function () {
       var spy = sinon.spy(window._bdq, 'push');
       analytics.pageview();
       expect(spy.calledWith(['trackPageview', undefined])).to.be(true);

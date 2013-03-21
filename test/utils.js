@@ -28,6 +28,14 @@ window.test = {
 
   oldUserId : 'old',
 
+  logMessage : 'something',
+
+  logError : new Error('something'),
+
+  logProperties : {
+    date : new Date()
+  },
+
 
   // Providers
   // ---------
@@ -76,7 +84,11 @@ window.test = {
 
   'HubSpot' : 'x',
 
-  'Intercom' : 'x',
+  'Intercom' : {
+    appId     : 'x',
+    activator : '#someElement',
+    counter   : true
+  },
 
   'Keen IO' : {
     projectId : 'KEEN_PROJECT_ID',
@@ -87,7 +99,7 @@ window.test = {
 
   'Klaviyo' : 'x',
 
-  'LiveChat' : '2143261',
+  'LiveChat' : '2328351',
 
   'Mixpanel' : 'x',
 
