@@ -1,3 +1,20 @@
+0.8.10 / 2013-3-14
+==================
+* Added fix for conversion of `company`'s `created` date
+* Added extra tests for `trackForm`
+* Fixing issue with ClickTale https bug
+
+0.8.9 / 2013-3-13
+=================
+* Migrated to new Intercom Javascript API
+* Removed un-used Intercom traits
+* Fix bug in `trackForm` when using jQuery
+
+0.8.8 / 2013-3-12
+=================
+* Added `userId` to Errorception metadata
+* Made date parsing more lenient (ms & sec) for trait.created
+
 0.8.7 / 2013-3-7
 ================
 * [Qualaroo](https://qualaroo.com/)
@@ -10,7 +27,7 @@
 
 0.8.5 / 2013-3-7
 ================
-* Storyberg by [@kevinicus](https://github.com/kevinicus)
+* [Storyberg](http://storyberg.com/) by [@kevinicus](https://github.com/kevinicus)
 * [BugHerd](http://bugherd.com)
 * [ClickTale](http://clicktale.com)
 * Cleaned up extraneous `require`'s in many providers

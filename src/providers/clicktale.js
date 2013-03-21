@@ -1,12 +1,12 @@
-// ClickTale
-// ---------
-// [Documentation](http://wiki.clicktale.com/Article/JavaScript_API).
+// http://wiki.clicktale.com/Article/JavaScript_API
 
 var date     = require('load-date')
   , Provider = require('../provider')
   , load     = require('load-script');
 
 module.exports = Provider.extend({
+
+  name : 'ClickTale',
 
   key : 'projectId',
 
@@ -29,13 +29,16 @@ module.exports = Provider.extend({
     // what number to set for this.
     recordingRatio : 0.01,
 
-    // The Partition ID determines where ClickTale stores the data according to 
+    // The Partition ID determines where ClickTale stores the data according to
     // http://wiki.clicktale.com/Article/JavaScript_API
     partitionId    : null
   },
 
 
   initialize : function (options, ready) {
+
+    // If we're on https:// but don't have a secure library, return early.
+    if (document.location.protocol === 'https:' && !options.httpsCdnUrl) return;
 
     // ClickTale wants this at the "top" of the page. The
     // analytics.js snippet sets this date synchronously now,
