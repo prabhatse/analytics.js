@@ -1681,7 +1681,8 @@ extend(Analytics.prototype, {
 
   identify : function (userId, traits, options, callback) {
     if (!this.initialized) {
-      this.enqueueCall('identify', [userId, clone(traits), clone(context)]);
+      this.enqueueCall('identify', [userId, clone(traits), clone(options), 
+                                    callback]);
       return;
     }
 
@@ -1756,12 +1757,13 @@ extend(Analytics.prototype, {
    * @param {Object} options (optional) - Settings for the track call.
    *
    * @param {Function} callback - A function to call after a small
-   * timeout, giving the identify time to make requests.
+   * timeout, giving the track time to make requests.
    */
 
   track : function (event, properties, options, callback) {
     if (!this.initialized) {
-      this.enqueueCall('track', [event, clone(properties), clone(context)]);
+      this.enqueueCall('track', [event, clone(properties), clone(options),
+                                 callback]);
       return;
     }
 
@@ -1954,7 +1956,7 @@ extend(Analytics.prototype, {
 
   alias : function (newId, originalId, options) {
     if (!this.initialized) {
-      this.enqueueCall('alias', [newId, originalId]);
+      this.enqueueCall('alias', [newId, originalId, clone(options)]);
       return;
     }
 
