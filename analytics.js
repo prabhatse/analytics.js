@@ -3528,6 +3528,7 @@ module.exports = Provider.extend({
   initialize : function (options, ready) {
     (function (c, a) {
       window.mixpanel = a;
+      a.__SV = 1.2;
       var b, d, h, e;
       b = c.createElement('script');
       b.type = 'text/javascript';
@@ -3551,7 +3552,6 @@ module.exports = Provider.extend({
         for (e = 0; e < h.length; e++) d(g, h[e]);
         a._i.push([b, c, f]);
       };
-      a.__SV = 1.2;
     })(document, window.mixpanel || []);
 
     // Pass options directly to `init` as the second argument.
